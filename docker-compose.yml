@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # 1. DATABASE (MySQL)
+  mysql-db:
+    image: mysql:8.0
+    container_name: electric_mysql
+    environment:
+      MYSQL_DATABASE: electric_shop
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: shop_user
+      MYSQL_PASSWORD: shop_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql # Giữ lại data khi container bị xóa
+
+  # 2. CACHE (Redis)
+  redis-cache:
+    image: redis:alpine
+    container_name: electric_redis
+    ports:
+      - "6379:6379"
+
+  # 3. MESSAGE QUEUE (RabbitMQ)
+  rabbitmq-mq:
+    image: rabbitmq:3-management-alpine
+    container_name: electric_rabbitmq
+    ports:
+      - "5672:5672"   # Port để Spring Boot kết nối
+      - "15672:15672" # Port xem giao diện quản lý trên web
+
+  # 4. BACKEND (Spring Boot Java 21)
+  backend-api:
+    build: ./backend  # Báo cho Docker biết: "Hãy vào thư mục backend, đọc file Dockerfile để tự tạo image"
+    container_name: electric_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db      # Bắt buộc DB phải chạy lên trước thì Backend mới chạy
+      - redis-cache
+      - rabbitmq-mq
+
+  # 5. FRONTEND (React + Vite)
+  frontend-web:
+    image: node:24-slim
+    container_name: electric_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    command: npm run dev
+
+# Khai báo volume để lưu trữ dữ liệu cứng cho MySQL
+volumes:
+  mysql_data:
