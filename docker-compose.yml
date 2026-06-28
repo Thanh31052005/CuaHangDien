@@ -6,14 +6,14 @@ services:
     image: mysql:8.0
     container_name: electric_mysql
     environment:
-      MYSQL_DATABASE: electric_shop
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_USER: shop_user
-      MYSQL_PASSWORD: shop_password
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql # Giữ lại data khi container bị xóa
+      - mysql_data:/var/lib/mysql 
 
   # 2. CACHE (Redis)
   redis-cache:

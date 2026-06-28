@@ -1,10 +1,10 @@
-package com.electric.shop;
+package com.electric_shop.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ShopApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {

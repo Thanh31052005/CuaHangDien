@@ -1,13 +1,13 @@
-package com.electric.shop;
+package com.electric_shop.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ShopApplication {
+public class BackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ShopApplication.class, args);
+		SpringApplication.run(BackendApplication.class, args);
 	}
 
 }

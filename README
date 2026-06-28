@@ -1,1 +1,41 @@
---Xin chào--
+# ⚡ Electric Ecommerce Platform
+
+Một hệ thống nền tảng thương mại điện tử chuyên cung cấp thiết bị điện, được xây dựng theo chuẩn Kiến trúc phân tán (Distributed Architecture) với môi trường phát triển lai (Hybrid Development Environment) tối ưu hóa cho hiệu năng và trải nghiệm lập trình.
+
+## 🛠 Công nghệ sử dụng (Tech Stack)
+
+### 1. Frontend (Giao diện người dùng)
+* **Framework:** React + Vite
+* **Styling:** Tailwind CSS & DaisyUI
+* **Containerization:** Node 24 (Slim) chạy qua Docker Volume (Tự động hot-reload).
+
+### 2. Backend (Xử lý nghiệp vụ)
+* **Nền tảng:** Java 21 & Spring Boot 3.x
+* **Cơ sở dữ liệu:** Spring Data JPA (Áp dụng mô hình Database-First với `ddl-auto: validate`)
+* **Bảo mật & Ràng buộc:** Spring Security, Validation
+* **Message Queue & Cache:** Spring for RabbitMQ, Spring Data Redis
+
+### 3. Hạ tầng (Infrastructure)
+* **Quản lý hệ thống:** Docker & Docker Compose
+* **Database:** MySQL 8.0 (Ánh xạ cổng `3306`)
+* **Cache:** Redis (Alpine)
+* **Message Broker:** RabbitMQ (Quản lý hàng đợi tin nhắn)
+
+---
+
+## 📂 Cấu trúc dự án (Project Structure)
+
+```text
+electric-ecommerce/
+├── backend/                  # Source code Java Spring Boot
+│   ├── src/main/java/...     # Chứa các class, entity, controller
+│   ├── src/main/resources/   # Chứa file application.yml
+│   └── pom.xml               # Cấu hình Maven
+├── frontend/                 # Source code React Vite
+│   ├── src/                  # Chứa giao diện web
+│   ├── tailwind.config.js    # Cấu hình Tailwind CSS
+│   ├── vite.config.ts        # Cấu hình Vite (mở mạng host: true)
+│   └── package.json
+├── docker-compose.yml        # Bản thiết kế tổng thể hệ thống Docker
+├── .env                      # File cấu hình biến môi trường (Bảo mật - Không push lên Git)
+└── .gitignore                # Chặn Git theo dõi các file nhạy cảm
