@@ -1,6 +1,6 @@
 package com.electric_shop.backend.service;
 
-import com.electric_shop.backend.dto.RegisterRequest;
+import com.electric_shop.backend.dto.RegisterRequestDto;
 import com.electric_shop.backend.entity.User;
 import com.electric_shop.backend.enums.Role;
 import com.electric_shop.backend.repository.UserRepository;
@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.electric_shop.backend.security.JwtUntils;
-import com.electric_shop.backend.dto.LoginResponse;
-import com.electric_shop.backend.dto.LoginRequest;
+import com.electric_shop.backend.dto.LoginResponseDto;
+import com.electric_shop.backend.dto.LoginRequestDto;
 
 @Service
 @RequiredArgsConstructor // Tự động inject các Bean (Repository, Encoder) thông qua Constructor
@@ -19,7 +19,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUntils jwtUntils;
 
-    public String register(RegisterRequest request) {
+    public String register(RegisterRequestDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Lỗi: Tên đăng nhập đã được sử dụng!");
         }
@@ -41,7 +41,7 @@ public class AuthService {
         return "Đăng ký tài khoản thành công!";
     }
     
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Sai tài khoản hoặc mật khẩu!"));
 
@@ -50,6 +50,6 @@ public class AuthService {
         }
 
         String token = jwtUntils.generateToken(user.getUsername());
-        return new LoginResponse(token, user.getUsername(), user.getRole().name());
+        return new LoginResponseDto(token, user.getUsername(), user.getRole().name());
     }
 }
