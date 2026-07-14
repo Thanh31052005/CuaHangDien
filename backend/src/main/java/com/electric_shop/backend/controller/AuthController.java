@@ -34,4 +34,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(e.getMessage()); // Trả về HTTP 400 nếu lỗi
         }
     }
+
+    // Các endpoint khác như refresh token, logout
 }
