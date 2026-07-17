@@ -12,6 +12,11 @@ import com.electric_shop.backend.repository.ProductRepository;
 import com.electric_shop.backend.dto.AddToCartRequestDto;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
+import com.electric_shop.backend.dto.CartResponseDto;
+import com.electric_shop.backend.dto.CartItemDto;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,5 +64,39 @@ public class CartService {
             cartItemRepository.save(newCartItem);
         }
         return "Product added to cart successfully";
+    }
+
+    public CartResponseDto getCartByUserId(Long userId) {
+        Optional<Cart> cartUser = cartRepository.findByUserId(userId);
+        if(cartUser.isEmpty() || cartUser.get().getCartItems().isEmpty()) {
+            return CartResponseDto.builder()
+                    .items(new ArrayList<>())
+                    .totalPrice(BigDecimal.ZERO)
+                    .build();
+        }
+
+        Cart cart = cartUser.get(); // Chatgpt bảo clean code chỗ này
+        List<CartItemDto> itemDtos = new ArrayList<>();
+        BigDecimal totalCartPrice = BigDecimal.ZERO;
+
+        for (CartItem item : cart.getCartItems()) {
+            BigDecimal price = item.getProduct().getPrice();
+            BigDecimal totalPrice = price.multiply(new BigDecimal(item.getQuantity()));
+            totalCartPrice = totalCartPrice.add(totalPrice);
+
+            itemDtos.add(CartItemDto.builder()
+                    .productId(item.getProduct().getId())
+                    .productName(item.getProduct().getName())
+                    .imageUrl(item.getProduct().getImageUrl())
+                    .price(price)
+                    .quantity(item.getQuantity())
+                    .subTotal(totalPrice)
+                    .build());
+        }
+        return CartResponseDto.builder()
+                .cartId(cart.getId())
+                .items(itemDtos)
+                .totalPrice(totalCartPrice)
+                .build();
     }
 }

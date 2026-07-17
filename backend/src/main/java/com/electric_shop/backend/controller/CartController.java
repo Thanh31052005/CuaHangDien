@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import com.electric_shop.backend.dto.AddToCartRequestDto;
 import com.electric_shop.backend.service.CartService;
+import com.electric_shop.backend.dto.CartResponseDto;
 
 @RestController
 @RequestMapping("/api/carts")
@@ -18,6 +19,16 @@ public class CartController {
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<CartResponseDto> getCart(@PathVariable Long userId) {
+        try {
+            CartResponseDto cartResponse = cartService.getCartByUserId(userId);
+            return ResponseEntity.ok(cartResponse);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }
