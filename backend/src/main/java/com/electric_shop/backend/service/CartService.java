@@ -17,7 +17,6 @@ import com.electric_shop.backend.dto.CartItemDto;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -98,5 +97,39 @@ public class CartService {
                 .items(itemDtos)
                 .totalPrice(totalCartPrice)
                 .build();
+    }
+
+    @Transactional
+    public String updateQuantity(Long userId, Long productId, Integer newQuantity) {
+        if (newQuantity <= 0) {
+            return removeCartItem(userId, productId);
+        }
+
+        Cart cart = cartRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+            .orElseThrow(() -> new RuntimeException("Product not in cart"));
+
+        Product product = cartItem.getProduct();
+        if (newQuantity > product.getStockQuantity()) {
+            throw new RuntimeException(" Insufficient stock for product: " + product.getName());
+        }
+
+        cartItem.setQuantity(newQuantity);
+        cartItemRepository.save(cartItem);
+        return "Cart item quantity updated successfully";
+    }
+
+    @Transactional
+    public String removeCartItem(Long userId, Long productId) {
+        Cart cart = cartRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+            .orElseThrow(() -> new RuntimeException("Product not in cart"));
+
+        cartItemRepository.delete(cartItem);
+        return "Cart item removed successfully";
     }
 }
