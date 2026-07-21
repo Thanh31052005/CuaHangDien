@@ -12,6 +12,7 @@ import com.electric_shop.backend.dto.CartResponseDto;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
+    
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody AddToCartRequestDto request) {
         try {
@@ -29,6 +30,31 @@ public class CartController {
             return ResponseEntity.ok(cartResponse);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{userId}/products/{productId}")
+    public ResponseEntity<?> updateQuantity(
+            @PathVariable Long userId,
+            @PathVariable Long productId,
+            @RequestParam Integer quantity) {
+        try {
+            String message = cartService.updateQuantity(userId, productId, quantity);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{userId}/products/{productId}")
+    public ResponseEntity<?> removeCartItem(
+            @PathVariable Long userId,
+            @PathVariable Long productId) {
+        try {
+            String message = cartService.removeCartItem(userId, productId);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
