@@ -7,13 +7,13 @@ import java.util.List;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Table(name = "carts")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

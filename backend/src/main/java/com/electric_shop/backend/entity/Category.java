@@ -8,10 +8,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "categories")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +28,8 @@ public class Category {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createAt;
 
-    @OneToMany(mappedBy = "category",
-    cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Product> products; 
 }
