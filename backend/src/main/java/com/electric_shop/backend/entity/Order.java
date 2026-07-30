@@ -30,12 +30,18 @@ public class Order {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    // Chưa sài
+    @Column(name = "promotion_id")
+    private Long promotionId;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private String status; 
 
