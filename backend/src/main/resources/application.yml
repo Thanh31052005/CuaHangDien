@@ -13,3 +13,7 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+
+jwt:
+  secret: ${JWT_SECRET_ACCESS}
+  expiration: ${JWT_EXPIRATION_ACCESS}    
