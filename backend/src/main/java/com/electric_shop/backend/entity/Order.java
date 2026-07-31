@@ -6,6 +6,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.electric_shop.backend.enums.PaymentMethod;
+import com.electric_shop.backend.enums.OrderStatus;
 
 @Entity
 @Table(name = "orders")
@@ -36,14 +38,15 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private String status; 
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private OrderStatus status = OrderStatus.PENDING;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

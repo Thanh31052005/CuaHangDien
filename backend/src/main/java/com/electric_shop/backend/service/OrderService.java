@@ -20,6 +20,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import java.util.stream.Collectors;
 import static java.util.Comparator.comparing;
+import com.electric_shop.backend.enums.OrderStatus;
+
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class OrderService {
                 .shippingAddress(request.getShippingAddress())
                 .phoneNumber(request.getPhoneNumber())
                 .paymentMethod(request.getPaymentMethod())
-                .status("PENDING")
+                .status(OrderStatus.PENDING)
                 .totalPrice(BigDecimal.ZERO)
                 .build();
         Order savedOrder = orderRepository.save(order);
