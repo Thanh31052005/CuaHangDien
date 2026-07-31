@@ -96,28 +96,37 @@ public class OrderService {
 
     public List<OrderResponseDto> getOrderHistory(Long userId) {
         List<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return orders.stream()
+                .map(this::mapToOrderResponse) 
+                .collect(Collectors.toList());        
+    }
 
-        return orders.stream().map(order -> {
-            List<OrderItemResponseDto> itemResponses = order.getOrderItems().stream()
+    private OrderResponseDto mapToOrderResponse(Order order) {
+        List<OrderItemResponseDto> itemResponses = order.getOrderItems().stream()
                 .map(item -> OrderItemResponseDto.builder()
-                    .productId(item.getProduct().getId())
-                    .productName(item.getProduct().getName())
-                    .quantity(item.getQuantity())
-                    .price(item.getPrice())
-                    .subTotal(item.getPrice().multiply(new BigDecimal(item.getQuantity())))
-                    .build())
-                    .collect(Collectors.toList());
+                        .productId(item.getProduct().getId())
+                        .productName(item.getProduct().getName())
+                        .quantity(item.getQuantity())
+                        .price(item.getPrice())
+                        .subTotal(item.getPrice().multiply(new BigDecimal(item.getQuantity())))
+                        .build())
+                .collect(Collectors.toList());
 
-            return OrderResponseDto.builder()
-                    .orderId(order.getId())
-                    .status(order.getStatus())
-                    .paymentMethod(order.getPaymentMethod())
-                    .shippingAddress(order.getShippingAddress())
-                    .phoneNumber(order.getPhoneNumber())
-                    .totalPrice(order.getTotalPrice())
-                    .createdAt(order.getCreatedAt())
-                    .items(itemResponses)
-                    .build();
-        }).collect(Collectors.toList());        
+        return OrderResponseDto.builder()
+                .orderId(order.getId())
+                .status(order.getStatus())
+                .paymentMethod(order.getPaymentMethod())
+                .shippingAddress(order.getShippingAddress())
+                .phoneNumber(order.getPhoneNumber())
+                .totalPrice(order.getTotalPrice())
+                .createdAt(order.getCreatedAt())
+                .items(itemResponses)
+                .build();
+    }
+
+    public OrderResponseDto getOrderDetail(Long orderId, Long userId) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+            .orElseThrow(() -> new RuntimeException("Order not found, or you don't have permission to view it."));
+        return mapToOrderResponse(order);
     }
 }
