@@ -9,6 +9,8 @@ import com.electric_shop.backend.repository.OrderRepository;
 import com.electric_shop.backend.repository.ProductRepository;
 import com.electric_shop.backend.repository.UserRepository;
 import com.electric_shop.backend.dto.CheckoutRequestDto;
+import com.electric_shop.backend.dto.OrderResponseDto;
+import com.electric_shop.backend.dto.OrderItemResponseDto;
 import com.electric_shop.backend.entity.Order;
 import com.electric_shop.backend.entity.OrderItem;
 import com.electric_shop.backend.entity.User;
@@ -90,5 +92,32 @@ public class OrderService {
 
         cartItemRepository.deleteAll(cart.getCartItems());
         return "Checkout successful. Order ID: " + savedOrder.getId();
+    }
+
+    public List<OrderResponseDto> getOrderHistory(Long userId) {
+        List<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        return orders.stream().map(order -> {
+            List<OrderItemResponseDto> itemResponses = order.getOrderItems().stream()
+                .map(item -> OrderItemResponseDto.builder()
+                    .productId(item.getProduct().getId())
+                    .productName(item.getProduct().getName())
+                    .quantity(item.getQuantity())
+                    .price(item.getPrice())
+                    .subTotal(item.getPrice().multiply(new BigDecimal(item.getQuantity())))
+                    .build())
+                    .collect(Collectors.toList());
+
+            return OrderResponseDto.builder()
+                    .orderId(order.getId())
+                    .status(order.getStatus())
+                    .paymentMethod(order.getPaymentMethod())
+                    .shippingAddress(order.getShippingAddress())
+                    .phoneNumber(order.getPhoneNumber())
+                    .totalPrice(order.getTotalPrice())
+                    .createdAt(order.getCreatedAt())
+                    .items(itemResponses)
+                    .build();
+        }).collect(Collectors.toList());        
     }
 }
