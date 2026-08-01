@@ -129,4 +129,30 @@ public class OrderService {
             .orElseThrow(() -> new RuntimeException("Order not found, or you don't have permission to view it."));
         return mapToOrderResponse(order);
     }
+
+    @Transactional
+    public String cancelOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new RuntimeException("Order not found, or you don't have permission to cancel it."));
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new RuntimeException("Order is already cancelled.");
+        }
+        if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.DELIVERED) {
+            throw new RuntimeException("Order has already been shipped or delivered and cannot be cancelled.");
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product lockedProduct = productRepository.findByIdForUpdate(item.getProduct().getId())
+                    .orElseThrow(() -> new RuntimeException(" Product not found with ID: " + item.getProduct().getId()));
+
+            lockedProduct.setStockQuantity(lockedProduct.getStockQuantity() + item.getQuantity());
+            productRepository.save(lockedProduct);
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+
+        return "Cancelled order successfully. Order ID: " + order.getId();
+    }
 }
