@@ -4,10 +4,12 @@ import com.electric_shop.backend.dto.RegisterRequestDto;
 import com.electric_shop.backend.entity.User;
 import com.electric_shop.backend.enums.Role;
 import com.electric_shop.backend.repository.UserRepository;
+import com.electric_shop.backend.security.JwtUtils;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.electric_shop.backend.security.JwtUntils;
+
 import com.electric_shop.backend.dto.LoginResponseDto;
 import com.electric_shop.backend.dto.LoginRequestDto;
 
@@ -17,7 +19,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUntils jwtUntils;
+    private final JwtUtils jwtUntils;
 
     public String register(RegisterRequestDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -28,7 +30,6 @@ public class AuthService {
             throw new RuntimeException("Lỗi: Email này đã được đăng ký!");
         }
 
-        // Xây dựng đối tượng User từ DTO
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())

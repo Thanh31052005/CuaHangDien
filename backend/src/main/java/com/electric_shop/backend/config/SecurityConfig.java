@@ -12,20 +12,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    // 1. Khai báo Bean BCrypt để dùng ở Service
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 2. Mở cửa tạm thời cho tất cả các API để dễ test Postman
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable) // Tắt chống giả mạo request (cần khi dùng API)
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // Cho phép truy cập mọi URL không cần token
+                .requestMatchers("/api/auth/**", "/api/products/**", "/api/categories/**").permitAll() // Mở cửa 
+                .requestMatchers("/api/orders/**", "/api/carts/**").authenticated() // KHÓA CỬA
+                .anyRequest().authenticated()
             );
         return http.build();
     }
