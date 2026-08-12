@@ -5,10 +5,14 @@ import com.electric_shop.backend.entity.User;
 import com.electric_shop.backend.enums.Role;
 import com.electric_shop.backend.repository.UserRepository;
 import com.electric_shop.backend.security.JwtUtils;
-
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.electric_shop.backend.dto.LoginResponseDto;
 import com.electric_shop.backend.dto.LoginRequestDto;
@@ -20,6 +24,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUntils;
+    private final AuthenticationManager authenticationManager;
 
     public String register(RegisterRequestDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -43,14 +48,19 @@ public class AuthService {
     }
     
     public LoginResponseDto login(LoginRequestDto request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                ));
+        //Lưu trạng thái đăng nhập
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        String token = jwtUntils.generateToken(authentication.getName());
+
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Sai tài khoản hoặc mật khẩu!"));
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Sai tài khoản hoặc mật khẩu!");
-        }
-
-        String token = jwtUntils.generateToken(user.getUsername());
         return new LoginResponseDto(token, user.getUsername(), user.getRole().name());
+        }
     }
-}
