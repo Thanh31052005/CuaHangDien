@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class CheckoutRequestDto {
-    private Long userId;
     private String shippingAddress;
     private String phoneNumber;     
     private PaymentMethod paymentMethod;

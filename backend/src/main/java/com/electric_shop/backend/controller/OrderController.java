@@ -22,13 +22,23 @@ import java.util.List;
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
+    
     private final OrderService orderService;
     private final UserRepository userRepository;
 
+    // HÀM PHỤ: Gom chung logic lấy User đang đăng nhập
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        return userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
+    }
+
     @PostMapping("/checkout")
-    public ResponseEntity<String> checkout(@RequestBody CheckoutRequestDto request) {
+    public ResponseEntity<?> checkout(@RequestBody CheckoutRequestDto request) {
         try {
-            String message = orderService.checkout(request);
+            User user = getAuthenticatedUser();
+            String message = orderService.checkout (request, user.getId()); 
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -36,28 +46,20 @@ public class OrderController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<OrderResponseDto>> getOrderHistory() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-        User user = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        List<OrderResponseDto> history = orderService.getOrderHistory(user.getId());
-        return ResponseEntity.ok(history);
+    public ResponseEntity<?> getOrderHistory() {
+        try {
+            User user = getAuthenticatedUser();
+            List<OrderResponseDto> history = orderService.getOrderHistory(user.getId());
+            return ResponseEntity.ok(history);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // Thêm JWT bỏ userId ra
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrderDetail(
-            @PathVariable Long orderId) {
+    public ResponseEntity<?> getOrderDetail(@PathVariable Long orderId) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentUsername = authentication.getName();
-
-            User user = userRepository.findByUsername(currentUsername)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
+            User user = getAuthenticatedUser();
             OrderResponseDto response = orderService.getOrderDetail(orderId, user.getId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
@@ -68,12 +70,7 @@ public class OrderController {
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentUsername = authentication.getName();
-
-            User user = userRepository.findByUsername(currentUsername)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
+            User user = getAuthenticatedUser();
             String message = orderService.cancelOrder(orderId, user.getId());
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {

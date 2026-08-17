@@ -6,7 +6,6 @@ import com.electric_shop.backend.enums.Role;
 import com.electric_shop.backend.repository.UserRepository;
 import com.electric_shop.backend.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +23,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUntils;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager; // xác thực thông tin
 
     public String register(RegisterRequestDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {

@@ -35,15 +35,15 @@ public class OrderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String checkout(CheckoutRequestDto request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
+    public String checkout(CheckoutRequestDto request, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
-        Cart cart = cartRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Cart not found for user ID: " + request.getUserId()));
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for user ID: " + userId));
 
         if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-            throw new RuntimeException("Cart is empty. Cannot proceed to checkout for user ID: " + request.getUserId());
+            throw new RuntimeException("Cart is empty. Cannot proceed to checkout for user ID: " + userId);
         }
 
         Order order = Order.builder()
