@@ -31,9 +31,10 @@ public class CartController {
         }
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<CartResponseDto> getCart(@PathVariable String username) {
+    @GetMapping
+    public ResponseEntity<CartResponseDto> getCart() {
         try {
+            String username = getCurrentUsername();
             CartResponseDto cartResponse = cartService.getCartByUserName(username);
             return ResponseEntity.ok(cartResponse);
         } catch (RuntimeException e) {
@@ -41,12 +42,12 @@ public class CartController {
         }
     }
 
-    @PutMapping("/{username}/products/{productId}")
+    @PutMapping("/products/{productId}")
     public ResponseEntity<?> updateQuantity(
-            @PathVariable String username,
             @PathVariable Long productId,
             @RequestParam Integer quantity) {
         try {
+            String username = getCurrentUsername();
             String message = cartService.updateQuantity(username, productId, quantity);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
@@ -54,11 +55,11 @@ public class CartController {
         }
     }
 
-    @DeleteMapping("/{username}/products/{productId}")
+    @DeleteMapping("/products/{productId}")
     public ResponseEntity<?> removeCartItem(
-            @PathVariable String username,
             @PathVariable Long productId) {
         try {
+            String username = getCurrentUsername();
             String message = cartService.removeCartItem(username, productId);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
