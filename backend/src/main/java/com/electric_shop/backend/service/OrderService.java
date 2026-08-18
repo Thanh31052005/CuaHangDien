@@ -3,7 +3,6 @@ package com.electric_shop.backend.service;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import com.electric_shop.backend.entity.Cart;
-import com.electric_shop.backend.repository.CartItemRepository;
 import com.electric_shop.backend.repository.CartRepository;
 import com.electric_shop.backend.repository.OrderRepository;
 import com.electric_shop.backend.repository.ProductRepository;
@@ -16,7 +15,6 @@ import com.electric_shop.backend.entity.OrderItem;
 import com.electric_shop.backend.entity.User;
 import com.electric_shop.backend.entity.CartItem;
 import com.electric_shop.backend.entity.Product;
-import java.util.ArrayList;
 import java.util.List;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,6 @@ import com.electric_shop.backend.enums.OrderStatus;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
@@ -54,13 +51,10 @@ public class OrderService {
                 .status(OrderStatus.PENDING)
                 .totalPrice(BigDecimal.ZERO)
                 .build();
-        Order savedOrder = orderRepository.save(order);
         
-        List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalPrice = BigDecimal.ZERO;
-
         List<CartItem> sortCartItems = cart.getCartItems().stream()
-            .sorted(comparing(item -> item.getProduct().getId()))
+            .sorted(comparing(item -> item.getProduct().getId())) //chống Deadlock, nên sắp xếp theo productId trước khi lock
             .collect(Collectors.toList());
 
         for (CartItem cartItem : sortCartItems) {
@@ -79,19 +73,18 @@ public class OrderService {
             totalPrice = totalPrice.add(ItemTotalPrice);
 
             OrderItem orderItem = OrderItem.builder()
-                    .order(savedOrder)
                     .product(lockedProduct)
                     .quantity(buyQuantity)
                     .price(lockedProduct.getPrice())
                     .build();
-            orderItems.add(orderItem);
+            order.addOrderItem(orderItem);
         }
-        savedOrder.setTotalPrice(totalPrice);
-        savedOrder.setOrderItems(orderItems);
-        orderRepository.save(savedOrder);
+        order.setTotalPrice(totalPrice);
+        orderRepository.save(order);
 
-        cartItemRepository.deleteAll(cart.getCartItems());
-        return "Checkout successful. Order ID: " + savedOrder.getId();
+        cart.getCartItems().clear();
+        cartRepository.save(cart);
+        return "Checkout successful. Order ID: " + order.getId();
     }
 
     public List<OrderResponseDto> getOrderHistory(Long userId) {
@@ -101,6 +94,8 @@ public class OrderService {
                 .collect(Collectors.toList());        
     }
 
+    //Tránh vòng lặp vô hạn của Order và OrderItem khi trả thẳng JSON về client, nên phải map sang DTO
+    //Tránh lặp code của getOrderHistory và getOrderDetail
     private OrderResponseDto mapToOrderResponse(Order order) {
         List<OrderItemResponseDto> itemResponses = order.getOrderItems().stream()
                 .map(item -> OrderItemResponseDto.builder()
@@ -142,6 +137,7 @@ public class OrderService {
             throw new RuntimeException("Order has already been shipped or delivered and cannot be cancelled.");
         }
 
+        // Trả số lượng sản phẩm về kho
         for (OrderItem item : order.getOrderItems()) {
             Product lockedProduct = productRepository.findByIdForUpdate(item.getProduct().getId())
                     .orElseThrow(() -> new RuntimeException(" Product not found with ID: " + item.getProduct().getId()));

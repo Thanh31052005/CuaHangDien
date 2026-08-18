@@ -2,6 +2,7 @@ package com.electric_shop.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
@@ -11,8 +12,8 @@ import com.electric_shop.backend.enums.OrderStatus;
 
 @Entity
 @Table(name = "orders")
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor // sài cho builder
+@NoArgsConstructor // sài cho hibernate
 @Builder
 @Getter
 @Setter
@@ -32,9 +33,10 @@ public class Order {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    // Chưa sài
-    @Column(name = "promotion_id")
-    private Long promotionId;
+    // áp dụng promotion
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "promotion_id")
+    private Promotion promotionId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
@@ -53,6 +55,18 @@ public class Order {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private List<OrderItem> orderItems = new ArrayList<>();
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Payment payment;
+
+    public void addOrderItem(OrderItem item) {
+        orderItems.add(item);
+        item.setOrder(this);
+    }
 }

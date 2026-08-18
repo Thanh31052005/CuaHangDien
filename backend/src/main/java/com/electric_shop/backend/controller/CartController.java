@@ -2,6 +2,8 @@ package com.electric_shop.backend.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 import com.electric_shop.backend.dto.AddToCartRequestDto;
 import com.electric_shop.backend.service.CartService;
@@ -13,45 +15,51 @@ import com.electric_shop.backend.dto.CartResponseDto;
 public class CartController {
     private final CartService cartService;
     
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
+    }
+
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody AddToCartRequestDto request) {
         try {
-            String message = cartService.AddToCart(request);
+            String username = getCurrentUsername();
+            String message = cartService.addToCart(request, username);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<CartResponseDto> getCart(@PathVariable Long userId) {
+    @GetMapping("/{username}")
+    public ResponseEntity<CartResponseDto> getCart(@PathVariable String username) {
         try {
-            CartResponseDto cartResponse = cartService.getCartByUserId(userId);
+            CartResponseDto cartResponse = cartService.getCartByUserName(username);
             return ResponseEntity.ok(cartResponse);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/{userId}/products/{productId}")
+    @PutMapping("/{username}/products/{productId}")
     public ResponseEntity<?> updateQuantity(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @PathVariable Long productId,
             @RequestParam Integer quantity) {
         try {
-            String message = cartService.updateQuantity(userId, productId, quantity);
+            String message = cartService.updateQuantity(username, productId, quantity);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @DeleteMapping("/{userId}/products/{productId}")
+    @DeleteMapping("/{username}/products/{productId}")
     public ResponseEntity<?> removeCartItem(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @PathVariable Long productId) {
         try {
-            String message = cartService.removeCartItem(userId, productId);
+            String message = cartService.removeCartItem(username, productId);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

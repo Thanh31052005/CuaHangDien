@@ -7,14 +7,15 @@ import com.electric_shop.backend.entity.Cart;
 import com.electric_shop.backend.entity.CartItem;
 import com.electric_shop.backend.repository.UserRepository;
 import com.electric_shop.backend.repository.CartRepository;
-import com.electric_shop.backend.repository.CartItemRepository;
 import com.electric_shop.backend.repository.ProductRepository;
 import com.electric_shop.backend.dto.AddToCartRequestDto;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import com.electric_shop.backend.dto.CartResponseDto;
 import com.electric_shop.backend.dto.CartItemDto;
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,11 @@ import lombok.RequiredArgsConstructor;
 public class CartService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
     @Transactional
-    public String AddToCart(AddToCartRequestDto request) {
-        User user = userRepository.findById(request.getUserId())
+    public String addToCart(AddToCartRequestDto request, String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Product product = productRepository.findById(request.getProductId())
@@ -44,7 +44,10 @@ public class CartService {
                     newCart.setUser(user);
                     return cartRepository.save(newCart);
                 });
-        Optional<CartItem> existingCartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
+        // tìm sản phẩm giỏ hàng đã tồn tại trong giỏ hàng của người dùng
+        Optional<CartItem> existingCartItem = cart.getCartItems().stream()
+                .filter(item -> item.getProduct().getId().equals(product.getId()))
+                .findFirst();
         if(existingCartItem.isPresent()) {
             CartItem cartItem = existingCartItem.get();
 
@@ -53,20 +56,23 @@ public class CartService {
                 throw new RuntimeException("Insufficient stock for product: " + product.getName());
             }
             cartItem.setQuantity(newQuantity);
-            cartItemRepository.save(cartItem);
         } else {
             CartItem newCartItem = CartItem.builder()
                     .cart(cart)
                     .product(product)
                     .quantity(request.getQuantity())
                     .build();
-            cartItemRepository.save(newCartItem);
+            cart.addCartItem(newCartItem);
         }
+        cartRepository.save(cart);
         return "Product added to cart successfully";
     }
 
-    public CartResponseDto getCartByUserId(Long userId) {
-        Optional<Cart> cartUser = cartRepository.findByUserId(userId);
+    public CartResponseDto getCartByUserName(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Optional<Cart> cartUser = cartRepository.findByUserId(user.getId());
         if(cartUser.isEmpty() || cartUser.get().getCartItems().isEmpty()) {
             return CartResponseDto.builder()
                     .items(new ArrayList<>())
@@ -75,23 +81,26 @@ public class CartService {
         }
 
         Cart cart = cartUser.get(); // Chatgpt bảo clean code chỗ này
-        List<CartItemDto> itemDtos = new ArrayList<>();
-        BigDecimal totalCartPrice = BigDecimal.ZERO;
+        List<CartItemDto> itemDtos = cart.getCartItems().stream()
+                .map(item -> CartItemDto.builder()
+                        .productId(item.getProduct().getId())
+                        .productName(item.getProduct().getName())
+                        .imageUrl(item.getProduct().getImageUrl())
+                        .price(item.getProduct().getPrice())
+                        .quantity(item.getQuantity())
+                        .subTotal(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                        .build())
+                .collect(Collectors.toList());
 
-        for (CartItem item : cart.getCartItems()) {
-            BigDecimal price = item.getProduct().getPrice();
-            BigDecimal totalPrice = price.multiply(new BigDecimal(item.getQuantity()));
-            totalCartPrice = totalCartPrice.add(totalPrice);
+        // Clean Code: Tính tổng tiền 1 dòng bằng Stream
+        BigDecimal totalCartPrice = itemDtos.stream()
+        .filter(Objects::nonNull)
+        .map(item -> Objects.requireNonNullElse(
+                item.getSubTotal(),
+                BigDecimal.ZERO
+        ))
+        .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
 
-            itemDtos.add(CartItemDto.builder()
-                    .productId(item.getProduct().getId())
-                    .productName(item.getProduct().getName())
-                    .imageUrl(item.getProduct().getImageUrl())
-                    .price(price)
-                    .quantity(item.getQuantity())
-                    .subTotal(totalPrice)
-                    .build());
-        }
         return CartResponseDto.builder()
                 .cartId(cart.getId())
                 .items(itemDtos)
@@ -100,16 +109,20 @@ public class CartService {
     }
 
     @Transactional
-    public String updateQuantity(Long userId, Long productId, Integer newQuantity) {
+    public String updateQuantity(String userName, Long productId, Integer newQuantity) {
         if (newQuantity <= 0) {
-            return removeCartItem(userId, productId);
+            return removeCartItem(userName, productId);
         }
+        User user = userRepository.findByUsername(userName)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findByUserId(user.getId())
             .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
-            .orElseThrow(() -> new RuntimeException("Product not in cart"));
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not in cart"));
 
         Product product = cartItem.getProduct();
         if (newQuantity > product.getStockQuantity()) {
@@ -117,19 +130,26 @@ public class CartService {
         }
 
         cartItem.setQuantity(newQuantity);
-        cartItemRepository.save(cartItem);
+        cartRepository.save(cart);
         return "Cart item quantity updated successfully";
     }
 
     @Transactional
-    public String removeCartItem(Long userId, Long productId) {
+    public String removeCartItem(String userName, Long productId) {
+        User user = userRepository.findByUsername(userName)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        Long userId = user.getId();
+
         Cart cart = cartRepository.findByUserId(userId)
             .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+        CartItem cartItem = cart.getCartItems().stream()
+            .filter(item -> item.getProduct().getId().equals(productId))
+            .findFirst()
             .orElseThrow(() -> new RuntimeException("Product not in cart"));
 
-        cartItemRepository.delete(cartItem);
+        cart.removeCartItem(cartItem);
+        cartRepository.save(cart);
         return "Cart item removed successfully";
     }
 }
