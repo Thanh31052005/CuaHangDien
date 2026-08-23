@@ -22,7 +22,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUntils;
+    private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager; // xác thực thông tin
 
     public String register(RegisterRequestDto request) {
@@ -37,7 +37,7 @@ public class AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) 
+                .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .status(true)
                 .build();
@@ -45,21 +45,23 @@ public class AuthService {
         userRepository.save(user);
         return "Đăng ký tài khoản thành công!";
     }
-    
+
     public LoginResponseDto login(LoginRequestDto request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
-                        request.getPassword()
-                ));
-        //Lưu trạng thái đăng nhập
+                        request.getPassword()));
+        // Lưu trạng thái đăng nhập
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        
-        String token = jwtUntils.generateToken(authentication.getName());
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+        String token = jwtUtils.generateToken(authentication.getName());
 
-        return new LoginResponseDto(token, user.getUsername(), user.getRole().name());
-        }
+        String roleName = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority())
+                .orElse("ROLE_USER")
+                .replace("ROLE_", "");
+
+        return new LoginResponseDto(token, authentication.getName(), roleName);
     }
+}
