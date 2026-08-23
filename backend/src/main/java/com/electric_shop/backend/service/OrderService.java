@@ -32,15 +32,16 @@ public class OrderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String checkout(CheckoutRequestDto request, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+    public String checkout(CheckoutRequestDto request, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        Long userId = user.getId();
 
         Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found for user ID: " + userId));
+                .orElseThrow(() -> new RuntimeException("Cart not found for user: " + username));
 
         if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-            throw new RuntimeException("Cart is empty. Cannot proceed to checkout for user ID: " + userId);
+            throw new RuntimeException("Cart is empty. Cannot proceed to checkout for user: " + username);
         }
 
         Order order = Order.builder()
@@ -87,8 +88,10 @@ public class OrderService {
         return "Checkout successful. Order ID: " + order.getId();
     }
 
-    public List<OrderResponseDto> getOrderHistory(Long userId) {
-        List<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<OrderResponseDto> getOrderHistory(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        List<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         return orders.stream()
                 .map(this::mapToOrderResponse) 
                 .collect(Collectors.toList());        
@@ -119,15 +122,19 @@ public class OrderService {
                 .build();
     }
 
-    public OrderResponseDto getOrderDetail(Long orderId, Long userId) {
-        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+    public OrderResponseDto getOrderDetail(Long orderId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
             .orElseThrow(() -> new RuntimeException("Order not found, or you don't have permission to view it."));
         return mapToOrderResponse(order);
     }
 
     @Transactional
-    public String cancelOrder(Long orderId, Long userId) {
-        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+    public String cancelOrder(Long orderId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new RuntimeException("Order not found, or you don't have permission to cancel it."));
 
         if (order.getStatus() == OrderStatus.CANCELLED) {

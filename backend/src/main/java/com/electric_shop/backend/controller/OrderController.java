@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import com.electric_shop.backend.dto.CheckoutRequestDto;
 import com.electric_shop.backend.dto.OrderResponseDto;
-import com.electric_shop.backend.entity.User;
-import com.electric_shop.backend.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import java.util.List;
@@ -22,23 +20,20 @@ import java.util.List;
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    
-    private final OrderService orderService;
-    private final UserRepository userRepository;
 
-    // HÀM PHỤ: Gom chung logic lấy User đang đăng nhập
-    private User getAuthenticatedUser() {
+    private final OrderService orderService;
+
+    // HÀM PHỤ: Lấy username từ token
+    private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-        return userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
+        return authentication.getName();
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(@RequestBody CheckoutRequestDto request) {
         try {
-            User user = getAuthenticatedUser();
-            String message = orderService.checkout (request, user.getId()); 
+            String username = getCurrentUsername();
+            String message = orderService.checkout(request, username);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -48,8 +43,8 @@ public class OrderController {
     @GetMapping("/history")
     public ResponseEntity<?> getOrderHistory() {
         try {
-            User user = getAuthenticatedUser();
-            List<OrderResponseDto> history = orderService.getOrderHistory(user.getId());
+            String username = getCurrentUsername();
+            List<OrderResponseDto> history = orderService.getOrderHistory(username);
             return ResponseEntity.ok(history);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -59,8 +54,8 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderDetail(@PathVariable Long orderId) {
         try {
-            User user = getAuthenticatedUser();
-            OrderResponseDto response = orderService.getOrderDetail(orderId, user.getId());
+            String username = getCurrentUsername();
+            OrderResponseDto response = orderService.getOrderDetail(orderId, username);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -70,8 +65,8 @@ public class OrderController {
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
         try {
-            User user = getAuthenticatedUser();
-            String message = orderService.cancelOrder(orderId, user.getId());
+            String username = getCurrentUsername();
+            String message = orderService.cancelOrder(orderId, username);
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
