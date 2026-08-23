@@ -14,7 +14,7 @@ import com.electric_shop.backend.dto.CartResponseDto;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-    
+
     private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
@@ -32,13 +32,13 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<CartResponseDto> getCart() {
+    public ResponseEntity<?> getCart() {
         try {
             String username = getCurrentUsername();
             CartResponseDto cartResponse = cartService.getCartByUserName(username);
             return ResponseEntity.ok(cartResponse);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
