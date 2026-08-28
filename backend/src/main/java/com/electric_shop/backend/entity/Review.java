@@ -29,7 +29,7 @@ public class Review {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @Column(nullable = false) //validate ở DTO
+    @Column(nullable = false, columnDefinition = "TINYINT") //validate ở DTO
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")
