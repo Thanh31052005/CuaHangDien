@@ -34,6 +34,12 @@ public class Promotion {
     @Column(name = "discount_value", nullable = false, precision = 13, scale = 2)
     private BigDecimal discountValue;
 
+    @Column(name = "min_order_value")
+    private BigDecimal minOrderValue; // Đơn tối thiểu để áp dụng
+
+    @Column(name = "max_discount_amount") 
+    private BigDecimal maxDiscountAmount; // Mức giảm tối đa
+
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
