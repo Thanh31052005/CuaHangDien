@@ -9,6 +9,7 @@ import com.electric_shop.backend.repository.ProductRepository;
 import com.electric_shop.backend.repository.UserRepository;
 import com.electric_shop.backend.dto.CheckoutRequestDto;
 import com.electric_shop.backend.dto.OrderResponseDto;
+import com.electric_shop.backend.dto.PromotionApplyResponseDto;
 import com.electric_shop.backend.dto.OrderItemResponseDto;
 import com.electric_shop.backend.entity.Order;
 import com.electric_shop.backend.entity.OrderItem;
@@ -30,6 +31,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final PromotionService promotionService;
 
     @Transactional
     public String checkout(CheckoutRequestDto request, String username) {
@@ -72,7 +74,6 @@ public class OrderService {
             productRepository.save(lockedProduct);
             BigDecimal ItemTotalPrice = lockedProduct.getPrice().multiply(new BigDecimal(buyQuantity));
             totalPrice = totalPrice.add(ItemTotalPrice);
-
             OrderItem orderItem = OrderItem.builder()
                     .product(lockedProduct)
                     .quantity(buyQuantity)
@@ -80,7 +81,15 @@ public class OrderService {
                     .build();
             order.addOrderItem(orderItem);
         }
-        order.setTotalPrice(totalPrice);
+
+        BigDecimal finalPrice = totalPrice;
+        
+        if (request.getPromotionCode() != null && !request.getPromotionCode().trim().isEmpty()) {
+            PromotionApplyResponseDto promoResponse = promotionService.applyCode(request.getPromotionCode(), totalPrice);
+            finalPrice = promoResponse.getFinalPrice(); 
+        }
+        
+        order.setTotalPrice(finalPrice);
         orderRepository.save(order);
 
         cart.getCartItems().clear();
