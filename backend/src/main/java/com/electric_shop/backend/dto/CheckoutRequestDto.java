@@ -8,4 +8,5 @@ public class CheckoutRequestDto {
     private String shippingAddress;
     private String phoneNumber;     
     private PaymentMethod paymentMethod;
+    private String promotionCode;
 }
