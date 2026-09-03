@@ -25,14 +25,14 @@ export default function ProductDetailPage() {
   };
 
   const badgeClass = product.badge === 'hot' ? 'badge-error' : product.badge === 'new' ? 'badge-success' : 'badge-warning';
-  const badgeLabel = product.badge === 'hot' ? 'BÃ¡n cháº¡y' : product.badge === 'new' ? 'Má»›i' : 'Sale';
+  const badgeLabel = product.badge === 'hot' ? 'Bán chạy' : product.badge === 'new' ? 'Mới' : 'Sale';
 
   const specs = [
-    { label: 'ThÆ°Æ¡ng hiá»‡u', value: product.name.split(' ')[0] },
-    { label: 'Danh má»¥c', value: product.category },
-    { label: 'Xuáº¥t xá»©', value: 'HÃ n Quá»‘c / Nháº­t Báº£n' },
-    { label: 'Báº£o hÃ nh', value: '24 thÃ¡ng chÃ­nh hÃ£ng' },
-    { label: 'TÃ¬nh tráº¡ng', value: product.stock > 0 ? `CÃ²n hÃ ng (${product.stock})` : 'Háº¿t hÃ ng' },
+    { label: 'Thương hiệu', value: product.name.split(' ')[0] },
+    { label: 'Danh mục', value: product.category },
+    { label: 'Xuất xứ', value: 'Hàn Quốc / Nhật Bản' },
+    { label: 'Bảo hành', value: '24 tháng chính hãng' },
+    { label: 'Tình trạng', value: product.stock > 0 ? `Còn hàng (${product.stock})` : 'Hết hàng' },
   ];
 
   return (
@@ -41,7 +41,7 @@ export default function ProductDetailPage() {
         {/* Breadcrumb */}
         <div className="breadcrumbs text-sm mb-4">
           <ul>
-            <li><button onClick={() => navigate(ROUTES.HOME)} className="hover:text-primary">Trang chá»§</button></li>
+            <li><button onClick={() => navigate(ROUTES.HOME)} className="hover:text-primary">Trang chủ</button></li>
             <li><button onClick={() => navigate(ROUTES.PRODUCTS, { category: product.category })} className="hover:text-primary">{product.category}</button></li>
             <li className="text-base-content/60 line-clamp-1 max-w-[200px]">{product.name}</li>
           </ul>
@@ -71,7 +71,7 @@ export default function ProductDetailPage() {
           <div className="space-y-4">
             <div className="flex gap-2 flex-wrap">
               {product.badge && <span className={`badge ${badgeClass} font-semibold`}>{badgeLabel}</span>}
-              {product.discount && <span className="badge badge-error font-bold">Giáº£m {product.discount}%</span>}
+              {product.discount && <span className="badge badge-error font-bold">Giảm {product.discount}%</span>}
               <span className="badge badge-ghost text-xs">{product.category}</span>
             </div>
 
@@ -87,10 +87,10 @@ export default function ProductDetailPage() {
                 ))}
               </div>
               <span className="font-semibold">{product.rating}</span>
-              <span className="text-base-content/50 text-sm">({product.reviews} Ä‘Ã¡nh giÃ¡)</span>
+              <span className="text-base-content/50 text-sm">({product.reviews} đánh giá)</span>
               <div className="divider divider-horizontal mx-0" />
               <span className={`text-sm font-semibold ${product.stock > 0 ? 'text-success' : 'text-error'}`}>
-                {product.stock > 0 ? `âœ“ CÃ²n hÃ ng` : 'âœ— Háº¿t hÃ ng'}
+                {product.stock > 0 ? `✓ Còn hàng` : '✗ Hết hàng'}
               </span>
             </div>
 
@@ -102,14 +102,14 @@ export default function ProductDetailPage() {
                   <span className="text-lg line-through text-base-content/40">{formatPrice(product.oldPrice)}</span>
                 )}
                 {product.discount && (
-                  <span className="badge badge-error font-bold">Tiáº¿t kiá»‡m {formatPrice(product.oldPrice! - product.price)}</span>
+                  <span className="badge badge-error font-bold">Tiết kiệm {formatPrice(product.oldPrice! - product.price)}</span>
                 )}
               </div>
             </div>
 
             {/* Promotions */}
             <div className="space-y-2">
-              {['ðŸšš Miá»…n phÃ­ váº­n chuyá»ƒn toÃ n quá»‘c', 'ðŸ”„ Äá»•i tráº£ miá»…n phÃ­ trong 30 ngÃ y', 'ðŸ›¡ï¸ Báº£o hÃ nh chÃ­nh hÃ£ng 24 thÃ¡ng', 'ðŸ“¦ Giao hÃ ng trong 24h ná»™i thÃ nh'].map(t => (
+              {['🚚 Miễn phí vận chuyển toàn quốc', '🔄 Đổi trả miễn phí trong 30 ngày', '🛡️ Bảo hành chính hãng 24 tháng', '📦 Giao hàng trong 24h nội thành'].map(t => (
                 <p key={t} className="text-sm text-base-content/70">{t}</p>
               ))}
             </div>
@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                ThÃªm vÃ o giá» hÃ ng
+                Thêm vào giỏ hàng
               </button>
               <button className="btn btn-outline btn-circle">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,7 +141,7 @@ export default function ProductDetailPage() {
           <div className="tabs tabs-bordered border-b border-base-200 px-4">
             {(['desc', 'spec', 'reviews'] as const).map(t => (
               <button key={t} className={`tab tab-lg font-semibold ${tab === t ? 'tab-active text-primary' : ''}`} onClick={() => setTab(t)}>
-                {t === 'desc' ? 'MÃ´ táº£' : t === 'spec' ? 'ThÃ´ng sá»‘' : `ÄÃ¡nh giÃ¡ (${product.reviews})`}
+                {t === 'desc' ? 'Mô tả' : t === 'spec' ? 'Thông số' : `Đánh giá (${product.reviews})`}
               </button>
             ))}
           </div>
@@ -172,7 +172,7 @@ export default function ProductDetailPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm">KhÃ¡ch hÃ ng {i + 1}</span>
+                        <span className="font-semibold text-sm">Khách hàng {i + 1}</span>
                         <div className="flex text-warning">
                           {[...Array(5)].map((_, j) => (
                             <svg key={j} xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 ${j < r ? 'fill-current' : 'fill-base-300'}`} viewBox="0 0 20 20">
@@ -180,9 +180,9 @@ export default function ProductDetailPage() {
                             </svg>
                           ))}
                         </div>
-                        <span className="text-xs text-base-content/40">â€¢ {i + 1} ngÃ y trÆ°á»›c</span>
+                        <span className="text-xs text-base-content/40">• {i + 1} ngày trước</span>
                       </div>
-                      <p className="text-sm text-base-content/70">Sáº£n pháº©m cháº¥t lÆ°á»£ng, giao hÃ ng nhanh. Ráº¥t hÃ i lÃ²ng vá»›i tráº£i nghiá»‡m mua hÃ ng!</p>
+                      <p className="text-sm text-base-content/70">Sản phẩm chất lượng, giao hàng nhanh. Rất hài lòng với trải nghiệm mua hàng!</p>
                     </div>
                   </div>
                 ))}
@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
         {/* Related */}
         {related.length > 0 && (
           <div>
-            <h2 className="text-lg font-bold mb-4">Sáº£n pháº©m liÃªn quan</h2>
+            <h2 className="text-lg font-bold mb-4">Sản phẩm liên quan</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {related.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
