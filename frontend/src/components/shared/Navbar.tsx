@@ -46,19 +46,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Top bar */}
-      <div className="bg-primary text-primary-content text-xs py-1.5 hidden md:block">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <span>🚚 Miễn phí vận chuyển cho đơn hàng trên 500.000đ</span>
-          <div className="flex gap-4 items-center">
-            <span>Hotline: 1800 1234</span>
-            <span>|</span>
-            <a className="hover:underline cursor-pointer">Cửa hàng & Chi nhánh</a>
-            <span>|</span>
-            <a className="hover:underline cursor-pointer">Tra cứu đơn hàng</a>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main navbar */}
       <div className={`sticky top-0 z-50 bg-base-100 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'border-b border-base-200'}`}>
@@ -176,19 +164,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Category strip */}
-        <div className="hidden lg:block border-t border-base-200">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-1.5">
-              {NAV_CATEGORIES.map(c => (
-                <button key={c.label} onClick={() => { setSearchQuery(''); navigate(ROUTES.PRODUCTS, { category: c.label }); }}
-                  className="btn btn-ghost btn-xs font-medium text-base-content/70 hover:text-primary hover:bg-primary/10 whitespace-nowrap">
-                  {c.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Mobile search overlay */}

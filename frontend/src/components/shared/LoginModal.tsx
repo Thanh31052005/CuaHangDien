@@ -29,11 +29,11 @@ export default function LoginModal() {
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-content font-black">E</div>
             <span className="font-black text-lg">Elec<span className="text-primary">Pro</span></span>
           </div>
-          <div className="tabs tabs-boxed bg-base-200 p-1 w-full">
-            <button className={`tab flex-1 font-semibold transition-all ${tab === 'login' ? 'tab-active' : ''}`} onClick={() => setTab('login')}>
+          <div className="flex bg-base-200 p-1 rounded-xl w-full">
+            <button className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${tab === 'login' ? 'bg-base-100 shadow-sm text-primary' : 'text-base-content/60 hover:text-base-content'}`} onClick={() => setTab('login')}>
               Đăng nhập
             </button>
-            <button className={`tab flex-1 font-semibold transition-all ${tab === 'register' ? 'tab-active' : ''}`} onClick={() => setTab('register')}>
+            <button className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${tab === 'register' ? 'bg-base-100 shadow-sm text-primary' : 'text-base-content/60 hover:text-base-content'}`} onClick={() => setTab('register')}>
               Đăng ký
             </button>
           </div>
@@ -46,7 +46,14 @@ export default function LoginModal() {
             <form className="space-y-4" onSubmit={handleLogin}>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Email hoặc số điện thoại</label>
-                <input type="text" className="input input-bordered focus:input-primary" placeholder="example@email.com" />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </span>
+                  <input type="text" className="input input-bordered focus:input-primary w-full pl-10" placeholder="example@email.com" />
+                </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Mật khẩu</label>

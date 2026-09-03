@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { ROUTES, VALID_PROMO_CODES } from '../../constants';
 
@@ -23,12 +23,12 @@ export default function Footer() {
   };
 
   const CATEGORY_LINKS = [
-    { label: 'Đèn LED & Đèn ống', cat: 'Đèn' },
-    { label: 'Quạt trần & Quạt đứng', cat: 'Quạt' },
-    { label: 'Pin các loại', cat: 'Pin' },
-    { label: 'Dây điện & Cáp điện', cat: 'Dây điện' },
-    { label: 'Ổ cắm & Công tắc', cat: 'Ổ cắm & Công tắc' },
-    { label: 'Phụ kiện điện', cat: 'Phụ kiện điện' },
+    { label: '��n LED & ��n ?ng', cat: '��n' },
+    { label: 'Qu?t tr?n & Qu?t d?ng', cat: 'Qu?t' },
+    { label: 'Pin c�c lo?i', cat: 'Pin' },
+    { label: 'D�y di?n & C�p di?n', cat: 'D�y di?n' },
+    { label: '? c?m & C�ng t?c', cat: '? c?m & C�ng t?c' },
+    { label: 'Ph? ki?n di?n', cat: 'Ph? ki?n di?n' },
   ];
 
   return (
@@ -42,7 +42,7 @@ export default function Footer() {
               <span className="font-black text-xl tracking-tight">Elec<span className="text-primary">Pro</span></span>
             </div>
             <p className="text-neutral-content/60 text-sm leading-relaxed mb-5">
-              Cung cấp vật tư điện chính hãng: đèn LED, quạt điện, pin, dây điện, ổ cắm và phụ kiện điện đa dạng.
+              Cung c?p v?t tu di?n ch�nh h�ng: d�n LED, qu?t di?n, pin, d�y di?n, ? c?m v� ph? ki?n di?n da d?ng.
             </p>
             <div className="flex gap-2">
               {[
@@ -60,7 +60,7 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="font-bold mb-5 text-base">Danh mục</h3>
+            <h3 className="font-bold mb-5 text-base">Danh m?c</h3>
             <ul className="space-y-2.5 text-sm text-neutral-content/60">
               {CATEGORY_LINKS.map(l => (
                 <li key={l.label}>
@@ -74,9 +74,9 @@ export default function Footer() {
 
           {/* Policy */}
           <div>
-            <h3 className="font-bold mb-5 text-base">Chính sách</h3>
+            <h3 className="font-bold mb-5 text-base">Ch�nh s�ch</h3>
             <ul className="space-y-2.5 text-sm text-neutral-content/60">
-              {['Chính sách bảo hành', 'Đổi trả 30 ngày', 'Giao hàng nhanh', 'Bảo mật thông tin', 'Điều khoản sử dụng', 'Hướng dẫn mua hàng'].map(l => (
+              {['Ch�nh s�ch b?o h�nh', '�?i tr? 30 ng�y', 'Giao h�ng nhanh', 'B?o m?t th�ng tin', '�i?u kho?n s? d?ng', 'Hu?ng d?n mua h�ng'].map(l => (
                 <li key={l}><a className="hover:text-primary hover:translate-x-1 transition-all cursor-pointer inline-block">{l}</a></li>
               ))}
             </ul>
@@ -84,9 +84,9 @@ export default function Footer() {
 
           {/* Promo code */}
           <div>
-            <h3 className="font-bold mb-3 text-base">Nhập mã giảm giá</h3>
+            <h3 className="font-bold mb-3 text-base">Nh?p m� gi?m gi�</h3>
             <p className="text-sm text-neutral-content/60 mb-4">
-              Có mã ưu đãi? Nhập tại đây để áp dụng cho đơn hàng tiếp theo.
+              C� m� uu d�i? Nh?p t?i d�y d? �p d?ng cho don h�ng ti?p theo.
             </p>
             <form onSubmit={handlePromo} className="flex gap-2">
               <input
@@ -96,13 +96,13 @@ export default function Footer() {
                 placeholder="Vd: SALE10"
                 className="input input-bordered input-sm flex-1 bg-neutral-content/5 border-neutral-content/15 focus:border-primary uppercase tracking-widest rounded-xl"
               />
-              <button type="submit" className="btn btn-primary btn-sm rounded-xl">Áp dụng</button>
+              <button type="submit" className="btn btn-primary btn-sm rounded-xl">�p d?ng</button>
             </form>
             {promoStatus === 'success' && (
-              <p className="mt-2 text-success text-sm font-semibold animate-fade-up">✓ Mã hợp lệ — giảm {discount}% cho đơn hàng!</p>
+              <p className="mt-2 text-success text-sm font-semibold animate-fade-up">? M� h?p l? � gi?m {discount}% cho don h�ng!</p>
             )}
             {promoStatus === 'error' && (
-              <p className="mt-2 text-error text-sm font-semibold animate-fade-up">✕ Mã không hợp lệ hoặc đã hết hạn.</p>
+              <p className="mt-2 text-error text-sm font-semibold animate-fade-up">? M� kh�ng h?p l? ho?c d� h?t h?n.</p>
             )}
             <div className="mt-6 space-y-2 text-sm text-neutral-content/60">
               <p className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function Footer() {
               </p>
               <p className="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                8:00 – 21:00 mỗi ngày
+                8:00 � 21:00 m?i ng�y
               </p>
               <p className="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
