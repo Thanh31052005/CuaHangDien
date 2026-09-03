@@ -5,13 +5,13 @@ import { useApp } from '../../../contexts/AppContext';
 const MOCK_ORDERS = [
   { id: 'EP240001', date: '28/06/2026', total: 285000, status: 'Đang giao', items: 2 },
   { id: 'EP240002', date: '20/06/2026', total: 1340000, status: 'Đã giao', items: 4 },
-  { id: 'EP240003', date: '10/06/2026', total: 890000, status: 'Đã huỷ', items: 1 },
+  { id: 'EP240003', date: '10/06/2026', total: 890000, status: 'Đã hủy', items: 1 },
 ];
 
 const STATUS_CLASS: Record<string, string> = {
   'Đang giao': 'badge-warning',
   'Đã giao': 'badge-success',
-  'Đã huỷ': 'badge-error',
+  'Đã hủy': 'badge-error',
 };
 
 export default function OrdersPage() {
@@ -28,7 +28,7 @@ export default function OrdersPage() {
             <div key={order.id} className="bg-base-100 rounded-xl border border-base-200 p-5 flex items-center justify-between gap-4">
               <div>
                 <p className="font-bold">#{order.id}</p>
-                <p className="text-sm text-base-content/60">{order.date} · {order.items} sản phẩm</p>
+                <p className="text-sm text-base-content/60">{order.date} • {order.items} sản phẩm</p>
               </div>
               <div className="text-right">
                 <p className="font-bold text-primary">{order.total.toLocaleString('vi-VN')}đ</p>
