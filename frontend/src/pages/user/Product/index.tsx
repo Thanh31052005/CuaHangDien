@@ -1,8 +1,10 @@
-﻿import { ROUTES } from '../../../constants'
-import React, { useState, useMemo, useEffect } from 'react';
-import { products, categories, formatPrice } from '../../../constants/products';
+import { ROUTES } from '../../../constants'
+import React, { useState, useEffect } from 'react';
+import { categories } from '../../../constants/products';
 import { useApp } from '../../../contexts/AppContext';
 import ProductCard from '../../../components/common/ProductCard';
+import { productService, ProductListParams, ProductListResponse } from '../../../services/product';
+import type { Product } from '../../../constants/products';
 
 type SortKey = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'discount';
 
@@ -19,39 +21,56 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
+  // API State
+  const [productsData, setProductsData] = useState<ProductListResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Sync state with URL params
   useEffect(() => {
     setSelectedCategory((pageParams.category as string) || '');
   }, [pageParams.category]);
 
-  const filtered = useMemo(() => {
-    let list = [...products];
+  // Fetch API whenever filters change
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const params: ProductListParams = {
+          page: page - 1, // Spring Boot is 0-indexed
+          size: ITEMS_PER_PAGE,
+          search: searchQuery || undefined,
+          category: selectedCategory || undefined,
+          minPrice: priceRange[0] === 0 ? undefined : priceRange[0],
+          maxPrice: priceRange[1] === 40000000 ? undefined : priceRange[1],
+          sort: sort !== 'default' ? sort : undefined,
+          badge: initFilter === 'sale' ? 'sale' : undefined
+        };
+        const res = await productService.getAll(params);
+        
+        // Handle both Spring Boot pagination wrapper and plain arrays for flexibility
+        if (Array.isArray(res)) {
+           setProductsData({ content: res, totalPages: Math.ceil(res.length / ITEMS_PER_PAGE), totalElements: res.length, number: page - 1 });
+        } else {
+           setProductsData(res);
+        }
+      } catch (err) {
+        console.error('Failed to fetch products', err);
+        setProductsData({ content: [], totalPages: 1, totalElements: 0, number: 0 });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    // Simple debounce for search
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedCategory, priceRange, sort, initFilter, page]);
 
-    if (searchQuery) {
-      list = list.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-
-    if (selectedCategory) {
-      list = list.filter(p => p.category === selectedCategory);
-    }
-
-    if (initFilter === 'sale') {
-      list = list.filter(p => p.badge === 'sale' || (p.discount && p.discount > 0));
-    }
-
-    list = list.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
-
-    switch (sort) {
-      case 'price-asc': list.sort((a, b) => a.price - b.price); break;
-      case 'price-desc': list.sort((a, b) => b.price - a.price); break;
-      case 'rating': list.sort((a, b) => b.rating - a.rating); break;
-      case 'discount': list.sort((a, b) => (b.discount || 0) - (a.discount || 0)); break;
-    }
-
-    return list;
-  }, [searchQuery, selectedCategory, priceRange, sort, initFilter]);
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const filtered = productsData?.content || [];
+  const totalPages = productsData?.totalPages || 1;
+  const totalElements = productsData?.totalElements || filtered.length;
 
   const handleCategoryChange = (cat: string) => {
     setSelectedCategory(cat);
@@ -154,7 +173,7 @@ export default function ProductsPage() {
             {/* Toolbar */}
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
               <p className="text-sm text-base-content/60">
-                <span className="font-bold text-base-content">{filtered.length}</span> sản phẩm
+                <span className="font-bold text-base-content">{totalElements}</span> sản phẩm
               </p>
               <div className="flex items-center gap-2">
                 {/* Mobile filter toggle */}
@@ -194,7 +213,12 @@ export default function ProductsPage() {
               </div>
             )}
 
-            {paginated.length === 0 ? (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-4 text-base-content/50">
+                <span className="loading loading-spinner loading-lg text-primary"></span>
+                <p className="font-semibold">Đang tải sản phẩm...</p>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-4 text-base-content/50">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -205,7 +229,7 @@ export default function ProductsPage() {
             ) : (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {paginated.map(p => <ProductCard key={p.id} product={p} />)}
+                  {filtered.map(p => <ProductCard key={p.id} product={p} />)}
                 </div>
 
                 {/* Pagination */}
@@ -234,4 +258,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
