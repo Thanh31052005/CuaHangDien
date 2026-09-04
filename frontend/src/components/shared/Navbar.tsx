@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { products, formatPrice } from '../../constants/products';
+import { formatPrice } from '../../constants/products';
 import { ROUTES } from '../../constants';
 import { useScrollY } from '../../hooks';
+import { productService } from '../../services/product';
+import type { Product } from '../../constants/products';
 
 const NAV_CATEGORIES = [
   { label: 'Đèn', slug: ROUTES.PRODUCTS },
@@ -26,15 +28,34 @@ export default function Navbar() {
   const scrollY = useScrollY();
   const scrolled = scrollY > 20;
   const [localQ, setLocalQ] = useState('');
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isSearchOpen && searchRef.current) searchRef.current.focus();
   }, [isSearchOpen]);
 
-  const suggestions = localQ.length > 1
-    ? products.filter(p => p.name.toLowerCase().includes(localQ.toLowerCase())).slice(0, 5)
-    : [];
+  // Debounced Search API
+  useEffect(() => {
+    if (localQ.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      productService.getAll({ search: localQ, size: 5 })
+        .then(res => {
+          const list = Array.isArray(res) ? res : res.content;
+          setSuggestions(list.slice(0, 5));
+        })
+        .catch(console.error)
+        .finally(() => setIsSearching(false));
+    }, 400); // 400ms debounce
+    
+    return () => clearTimeout(timer);
+  }, [localQ]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +67,6 @@ export default function Navbar() {
 
   return (
     <>
-
-
       {/* Main navbar */}
       <div className={`sticky top-0 z-50 bg-base-100 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'border-b border-base-200'}`}>
         <div className="container mx-auto px-4">
@@ -91,16 +110,18 @@ export default function Navbar() {
                   className="input input-bordered w-full pr-12 focus:outline-primary bg-base-200/60 border-base-300 focus:bg-base-100 transition-colors"
                 />
                 <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-primary btn-sm btn-circle">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                  {isSearching ? <span className="loading loading-spinner loading-xs text-primary-content"></span> : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  )}
                 </button>
                 {suggestions.length > 0 && (
                   <div className="absolute top-full left-0 right-0 bg-base-100 border border-base-200 rounded-xl shadow-xl z-[200] mt-1 overflow-hidden">
                     {suggestions.map(p => (
                       <button key={p.id} type="button"
                         className="flex items-center gap-3 w-full p-3 hover:bg-primary/10 hover:text-primary transition-colors text-left"
-                        onClick={() => { navigate(ROUTES.PRODUCT_DETAIL, { product: p }); setLocalQ(''); }}>
+                        onClick={() => { navigate(ROUTES.PRODUCT_DETAIL, { product: p, productId: p.id }); setLocalQ(''); }}>
                         <img src={p.image} className="w-10 h-10 rounded-lg object-cover" alt={p.name} />
                         <div>
                           <p className="text-sm font-medium line-clamp-1">{p.name}</p>
@@ -136,9 +157,9 @@ export default function Navbar() {
                 <div className="dropdown dropdown-end">
                   <div tabIndex={0} role="button" className="btn btn-ghost btn-sm gap-1.5 font-medium hidden sm:flex">
                     <div className="w-7 h-7 rounded-full bg-primary/20 text-primary font-bold text-sm flex items-center justify-center">
-                      {user?.name.charAt(0).toUpperCase()}
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
-                    {user?.name.split(' ').pop()}
+                    {user?.name?.split(' ').pop() || 'User'}
                   </div>
                   <ul tabIndex={0} className="dropdown-content menu p-2 shadow-xl bg-base-100 border border-base-200 rounded-xl w-44 z-[100] mt-2">
                     <li><button onClick={() => navigate(ROUTES.PROFILE)} className="hover:bg-primary/10 hover:text-primary">Tài khoản</button></li>
@@ -163,8 +184,6 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-
-
       </div>
 
       {/* Mobile search overlay */}
@@ -175,7 +194,9 @@ export default function Navbar() {
               <input ref={searchRef} type="text" value={localQ} onChange={e => setLocalQ(e.target.value)}
                 placeholder="Tìm kiếm sản phẩm..." className="input input-bordered flex-1 focus:outline-primary" />
               <button type="submit" className="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                {isSearching ? <span className="loading loading-spinner loading-sm"></span> : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                )}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => setIsSearchOpen(false)}>✕</button>
             </form>
@@ -183,7 +204,7 @@ export default function Navbar() {
               <div className="mt-2 flex flex-col gap-1">
                 {suggestions.map(p => (
                   <button key={p.id} type="button" className="flex items-center gap-3 p-2 hover:bg-base-200 rounded-xl text-left"
-                    onClick={() => { navigate(ROUTES.PRODUCT_DETAIL, { product: p }); setIsSearchOpen(false); setLocalQ(''); }}>
+                    onClick={() => { navigate(ROUTES.PRODUCT_DETAIL, { product: p, productId: p.id }); setIsSearchOpen(false); setLocalQ(''); }}>
                     <img src={p.image} className="w-10 h-10 rounded-lg object-cover" alt="" />
                     <div>
                       <p className="text-sm font-medium">{p.name}</p>

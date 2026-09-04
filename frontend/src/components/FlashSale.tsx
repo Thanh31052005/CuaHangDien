@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { products, formatPrice } from '../data/products';
 import { useApp } from '../context/AppContext';
 
@@ -30,7 +30,7 @@ export default function FlashSale() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">⚡</span>
+              <span className="text-2xl">?</span>
               <h2 className="text-xl font-black text-error">Flash Sale</h2>
             </div>
             <div className="flex items-center gap-1">
@@ -45,7 +45,7 @@ export default function FlashSale() {
             onClick={() => navigate('products', { filter: 'sale' })}
             className="btn btn-ghost btn-sm text-primary gap-1 font-semibold"
           >
-            Xem tất cả
+            Xem t?t c?
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -61,8 +61,8 @@ export default function FlashSale() {
                 {/* Progress bar */}
                 <div className="absolute bottom-0 inset-x-0 bg-base-100/90 px-3 py-1.5">
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-base-content/70">Đã bán {Math.floor(Math.random() * 40 + 50)}%</span>
-                    <span className="text-error font-medium">Còn {p.stock}</span>
+                    <span className="text-base-content/70">�� b�n {Math.floor(Math.random() * 40 + 50)}%</span>
+                    <span className="text-error font-medium">C�n {p.stock}</span>
                   </div>
                   <progress className="progress progress-error h-1.5 w-full" value={Math.floor(Math.random() * 40 + 50)} max="100"></progress>
                 </div>
@@ -77,7 +77,7 @@ export default function FlashSale() {
                   className="btn btn-error btn-xs w-full mt-1"
                   onClick={e => { e.stopPropagation(); addToCart(p); }}
                 >
-                  Thêm vào giỏ
+                  Th�m v�o gi?
                 </button>
               </div>
             </div>
