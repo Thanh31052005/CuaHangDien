@@ -1,10 +1,10 @@
 ﻿import React from 'react';
 
 const STATS = [
-  { label: 'Doanh thu th�ng', value: '42.500.000d', icon: '??', change: '+12%', up: true },
-  { label: '�on h�ng m?i', value: '128', icon: '??', change: '+8%', up: true },
-  { label: 'S?n ph?m', value: '47', icon: '??', change: '0%', up: true },
-  { label: 'Kh�ch h�ng', value: '356', icon: '??', change: '+5%', up: true },
+  { label: 'Doanh thu tháng', value: '42.500.000d', icon: '??', change: '+12%', up: true },
+  { label: 'Đơn hàng mới', value: '128', icon: '??', change: '+8%', up: true },
+  { label: 'Sản phẩm', value: '47', icon: '??', change: '0%', up: true },
+  { label: 'Khách hàng', value: '356', icon: '??', change: '+5%', up: true },
 ];
 
 export default function DashboardPage() {
