@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { categories } from '../../../constants/products';
 import { useApp } from '../../../contexts/AppContext';
 import ProductCard from '../../../components/common/ProductCard';
-import { productService, ProductListParams, ProductListResponse } from '../../../services/product';
+import { productService } from '../../../services/product';
+import type { ProductListParams, ProductListResponse } from '../../../services/product';
 import type { Product } from '../../../constants/products';
 
 type SortKey = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'discount';
