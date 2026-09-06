@@ -7,14 +7,14 @@ import org.springframework.http.ResponseEntity;
 import com.electric_shop.backend.service.PromotionService;
 import com.electric_shop.backend.dto.PromotionApplyResponseDto;
 
-
 @RestController
 @RequestMapping("/api/promotions")
 @RequiredArgsConstructor
 public class PromotionController {
     private final PromotionService promotionService;
 
-    // API nháp tính tiền khuyến mãi: GET /api/promotions/apply?code=SUMMER20&cartTotal=150000
+    // API nháp tính tiền khuyến mãi:
+    // GET/api/promotions/apply?code=SUMMER20&cartTotal=150000
     @GetMapping("/apply")
     public ResponseEntity<?> applyCode(
             @RequestParam String code,
