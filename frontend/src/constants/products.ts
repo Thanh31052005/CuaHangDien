@@ -14,6 +14,21 @@ export interface Product {
 }
 
 export const products: Product[] = [
+  // Sản phẩm Test
+  {
+    id: 999,
+    name: 'Sản phẩm Test',
+    price: 999000,
+    oldPrice: 1500000,
+    image: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=800&auto=format&fit=crop',
+    category: 'Đèn',
+    rating: 5.0,
+    reviews: 999,
+    badge: 'hot',
+    discount: 33,
+    stock: 10,
+    description: 'Sản phẩm được thêm vào để test giao diện và hiệu ứng cuộn trang.'
+  },
   // Đèn
   {
     id: 1,
