@@ -1,10 +1,10 @@
-import React from 'react';
+﻿import React from 'react';
 
 const STATS = [
-  { label: 'Doanh thu tháng', value: '42.500.000đ', icon: '💰', change: '+12%', up: true },
-  { label: 'Đơn hàng mới', value: '128', icon: '📦', change: '+8%', up: true },
-  { label: 'Sản phẩm', value: '47', icon: '💡', change: '0%', up: true },
-  { label: 'Khách hàng', value: '356', icon: '👥', change: '+5%', up: true },
+  { label: 'Doanh thu th�ng', value: '42.500.000d', icon: '??', change: '+12%', up: true },
+  { label: '�on h�ng m?i', value: '128', icon: '??', change: '+8%', up: true },
+  { label: 'S?n ph?m', value: '47', icon: '??', change: '0%', up: true },
+  { label: 'Kh�ch h�ng', value: '356', icon: '??', change: '+5%', up: true },
 ];
 
 export default function DashboardPage() {
@@ -35,7 +35,7 @@ export default function DashboardPage() {
             {['EP240128', 'EP240127', 'EP240126', 'EP240125'].map((id, i) => (
               <div key={id} className="flex items-center justify-between text-sm">
                 <span className="font-medium">#{id}</span>
-                <span className="text-base-content/60">{(i + 1) * 250000 + 100000}đ</span>
+                <span className="text-base-content/60">{(i + 1) * 250000 + 100000}d</span>
                 <span className={`badge badge-xs ${i === 0 ? 'badge-warning' : 'badge-success'}`}>{i === 0 ? 'Đang giao' : 'Đã giao'}</span>
               </div>
             ))}
@@ -46,7 +46,7 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {[
               { name: 'Bóng LED Philips 9W', stock: 5 },
-              { name: 'Pin CR2032 vỉ 5', stock: 8 },
+              { name: 'Pin CR2032 5V', stock: 8 },
               { name: 'Quạt bàn USB 15cm', stock: 3 },
             ].map(p => (
               <div key={p.name} className="flex items-center justify-between text-sm">
