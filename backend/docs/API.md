@@ -9,8 +9,8 @@ Base URL: `http://localhost:8080/api`
 
 | Method | Endpoint | Description | Auth Required |
 | --- | --- | --- | --- |
-| `POST` | `/api/auth/register` | Đăng ký tài khoản người dùng mới. | ❌ No |
-| `POST` | `/api/auth/login` | Đăng nhập và nhận JWT (Bearer Token). | ❌ No |
+| `POST` | `/api/auth/register` | Đăng ký tài khoản người dùng mới.<br>**Body:** `{"username": "...", "email": "...", "password": "...", "fullName": "..."}` | ❌ No |
+| `POST` | `/api/auth/login` | Đăng nhập và nhận JWT (Bearer Token).<br>**Body:** `{"username": "...", "password": "..."}` | ❌ No |
 
 ---
 
