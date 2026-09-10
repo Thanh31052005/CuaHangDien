@@ -130,6 +130,7 @@ public class CartService {
         }
 
         cartItem.setQuantity(newQuantity);
+        cart.setUpdatedAt(java.time.LocalDateTime.now());
         cartRepository.save(cart);
         return "Cart item quantity updated successfully";
     }
