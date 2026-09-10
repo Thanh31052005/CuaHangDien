@@ -1,8 +1,8 @@
 import { axiosClient } from '../api/axiosClient';
 
 export interface LoginPayload { username: string; password: string; }
-export interface RegisterPayload { firstName: string; lastName: string; phone: string; email: string; password: string; }
-export interface AuthResponse { accessToken: string; refreshToken: string; user: { id: number; name: string; email: string; role: 'user' | 'admin' }; }
+export interface RegisterPayload { username: string; email: string; password: string; fullName: string; }
+export interface AuthResponse { token: string; username: string; fullName: string; email: string; role: string; message?: string; }
 
 export const authService = {
   login: (payload: LoginPayload) =>
