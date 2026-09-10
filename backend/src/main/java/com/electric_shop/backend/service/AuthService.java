@@ -63,6 +63,9 @@ public class AuthService {
                 .orElse("ROLE_USER")
                 .replace("ROLE_", "");
 
-        return new LoginResponseDto(token, authentication.getName(), roleName);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        return new LoginResponseDto(token, authentication.getName(), user.getFullName(), user.getEmail(), roleName);
     }
 }
