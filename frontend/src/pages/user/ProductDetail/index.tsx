@@ -62,7 +62,7 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    for (let i = 0; i < qty; i++) addToCart(product);
+    addToCart(product, qty);
     setIsCartOpen(true);
   };
 

@@ -13,5 +13,11 @@ export const cartService = {
     axiosClient.post<any, any>('/carts/add', { productId, quantity }),
 
   getCart: () =>
-    axiosClient.get<any, CartItem[]>('/carts'),
+    axiosClient.get<any, any>('/carts'),
+
+  updateQuantity: (productId: number, quantity: number) =>
+    axiosClient.put<any, any>(`/carts/products/${productId}?quantity=${quantity}`),
+
+  removeCartItem: (productId: number) =>
+    axiosClient.delete<any, any>(`/carts/products/${productId}`),
 };
