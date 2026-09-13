@@ -25,6 +25,7 @@ interface AppContextType {
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, qty: number) => void;
+  clearCart: () => void;
   cartCount: number;
   cartTotal: number;
   searchQuery: string;
@@ -39,6 +40,15 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const isTokenExpired = (token: string) => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return Date.now() >= payload.exp * 1000;
+  } catch (e) {
+    return true;
+  }
+};
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
@@ -48,8 +58,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Try to parse user from localStorage on init (optional, if you want persistent login)
   const [user, setUser] = useState<AuthUser | null>(() => {
+    const token = localStorage.getItem('access_token');
+    if (token && isTokenExpired(token)) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      return null;
+    }
     const u = localStorage.getItem('user');
     return u ? JSON.parse(u) : null;
   });
@@ -57,6 +72,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setUser(null);
+      setCartItems([]);
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -67,10 +91,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user && localStorage.getItem('access_token')) {
       cartService.getCart().then(res => {
-        // Backend CartResponseDto has cartItems array. Each item has product and quantity.
-        if (res && res.cartItems) {
-          const items = res.cartItems.map((item: any) => ({
-            ...item.product,
+        // Backend CartResponseDto has items array.
+        if (res && res.items) {
+          const items = res.items.map((item: any) => ({
+            id: item.productId,
+            name: item.productName,
+            image: item.imageUrl,
+            price: item.price,
             quantity: item.quantity
           }));
           setCartItems(items);
@@ -142,6 +169,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCartItems(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i));
   };
 
+  const clearCart = () => setCartItems([]);
+
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
   const cartTotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
 
@@ -151,7 +180,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentPage, navigate, pageParams,
       user, isAuthenticated: !!user, isAdmin: user?.role === 'admin',
       login, logout,
-      cartItems, addToCart, removeFromCart, updateQuantity, cartCount, cartTotal,
+      cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal,
       searchQuery, setSearchQuery,
       isLoginOpen, setIsLoginOpen,
       isCartOpen, setIsCartOpen,

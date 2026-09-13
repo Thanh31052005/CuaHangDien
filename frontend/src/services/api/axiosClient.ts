@@ -36,8 +36,8 @@ axiosClient.interceptors.response.use(
       // Hết hạn token hoặc không có quyền -> Đăng xuất
       localStorage.removeItem('access_token');
       localStorage.removeItem('user'); 
-      // Kích hoạt event hoặc đổi href
-      window.location.href = '/'; 
+      // Kích hoạt event để AppContext xử lý logout mềm mại không reload trang
+      window.dispatchEvent(new Event('auth:unauthorized'));
     }
     return Promise.reject(error);
   }
