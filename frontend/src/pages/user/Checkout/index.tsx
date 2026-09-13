@@ -6,9 +6,9 @@ import { promotionService } from '../../../services/promotion';
 import { orderService } from '../../../services/order';
 
 export default function CheckoutPage() {
-  const { cartItems, cartTotal, navigate } = useApp();
+  const { cartItems, cartTotal, navigate, clearCart } = useApp();
   const [step, setStep] = useState(1);
-  const [payMethod, setPayMethod] = useState('cod');
+  const [payMethod, setPayMethod] = useState('COD');
   const [submitted, setSubmitted] = useState(false);
 
   // Form State
@@ -65,7 +65,7 @@ export default function CheckoutPage() {
         promotionCode: promoCode || undefined
       });
       setSubmitted(true);
-      // Nếu có hàm clearCart trong AppContext, bạn có thể gọi ở đây
+      clearCart();
     } catch (err: any) {
       setErrorMsg(err.response?.data?.message || err.message || 'Có lỗi xảy ra khi đặt hàng');
     } finally {
@@ -174,13 +174,12 @@ export default function CheckoutPage() {
                 <h2 className="font-bold text-lg mb-2">Phương thức thanh toán</h2>
                 <div className="space-y-3">
                   {[
-                    { id: 'cod', label: 'Thanh toán khi nhận hàng (COD)', icon: '💵', desc: 'Nhận hàng rồi trả tiền' },
-                    { id: 'bank', label: 'Chuyển khoản ngân hàng', icon: '🏦', desc: 'VCB, BIDV, Techcombank,...' },
-                    { id: 'momo', label: 'Ví điện tử MoMo', icon: '💜', desc: 'Thanh toán nhanh qua MoMo' },
-                    { id: 'card', label: 'Thẻ tín dụng / Ghi nợ', icon: '💳', desc: 'Visa, Mastercard, JCB' },
+                    { id: 'COD', label: 'Thanh toán khi nhận hàng (COD)', icon: '💵', desc: 'Nhận hàng rồi trả tiền', disabled: false },
+                    { id: 'BANK_TRANSFER', label: 'Chuyển khoản ngân hàng (Sắp ra mắt)', icon: '🏦', desc: 'Tính năng đang được phát triển...', disabled: true },
+                    { id: 'VNPAY', label: 'Thanh toán qua VNPAY (Sắp ra mắt)', icon: '💳', desc: 'Thanh toán QR Code, Thẻ ATM...', disabled: true },
                   ].map(m => (
-                    <label key={m.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${payMethod === m.id ? 'border-primary bg-primary/5' : 'border-base-200 hover:border-primary/30'}`}>
-                      <input type="radio" name="pay" value={m.id} checked={payMethod === m.id} onChange={() => setPayMethod(m.id)} className="radio radio-primary" />
+                    <label key={m.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${m.disabled ? 'opacity-50 cursor-not-allowed bg-base-200/50' : 'cursor-pointer hover:border-primary/30'} ${payMethod === m.id ? 'border-primary bg-primary/5' : 'border-base-200'}`}>
+                      <input type="radio" name="pay" value={m.id} checked={payMethod === m.id} onChange={() => setPayMethod(m.id)} disabled={m.disabled} className="radio radio-primary" />
                       <span className="text-2xl">{m.icon}</span>
                       <div>
                         <p className="font-semibold">{m.label}</p>
@@ -190,24 +189,7 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                {payMethod === 'card' && (
-                  <div className="bg-base-200 rounded-xl p-4 space-y-3">
-                    <div className="form-control">
-                      <label className="label py-1"><span className="label-text font-medium">Số thẻ</span></label>
-                      <input type="text" className="input input-bordered focus:input-primary" placeholder="0000 0000 0000 0000" maxLength={19} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="form-control">
-                        <label className="label py-1"><span className="label-text font-medium">Ngày hết hạn</span></label>
-                        <input type="text" className="input input-bordered focus:input-primary" placeholder="MM/YY" maxLength={5} />
-                      </div>
-                      <div className="form-control">
-                        <label className="label py-1"><span className="label-text font-medium">CVV</span></label>
-                        <input type="text" className="input input-bordered focus:input-primary" placeholder="•••" maxLength={3} />
-                      </div>
-                    </div>
-                  </div>
-                )}
+
 
                 <div className="flex gap-3 mt-4">
                   <button onClick={() => setStep(1)} className="btn btn-ghost flex-1">← Quay lại</button>
