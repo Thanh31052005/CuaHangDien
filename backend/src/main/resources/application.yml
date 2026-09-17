@@ -8,7 +8,12 @@ spring:
     url: jdbc:mysql://localhost:3306/electric_shop
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 30000
   jpa:
     hibernate:
       ddl-auto: validate
