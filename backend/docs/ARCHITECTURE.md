@@ -1,6 +1,6 @@
 # 🏛️ Architecture & Project Structure
 
-Hệ thống Backend được xây dựng bằng **Java 21** và **Spring Boot 3.x**, tuân thủ nghiêm ngặt mô hình kiến trúc phân lớp (Layered Architecture) kết hợp với các nguyên tắc RESTful API.
+Hệ thống Backend được xây dựng bằng **Java 25** và **Spring Boot 4.1.x**, tuân thủ nghiêm ngặt mô hình kiến trúc phân lớp (Layered Architecture) kết hợp với các nguyên tắc RESTful API.
 
 ---
 
